@@ -1,0 +1,25 @@
+﻿{
+    "Author": "Ac0",
+    "Enabled": true,
+    "CSS": [
+        "css/AcStyle.css",
+        "css/font-awesome.min.css",
+        "css/nprogress.css"
+    ],
+    "JS": {
+        "common": "js/libraries/common",
+        "jquery": "js/jquery/jquery",
+        "angular": "js/angular/angular.min",
+        "ocLazyLoad": "js/angular/ocLazyLoad",
+        "AcGenerator": "js/angular/AcGenerator",
+        "ngProgress": "js/angular/ngProgress",
+        "uiRoute": "js/angular/angular-ui-router.min"
+    },
+    "JSSchemes": {
+        "angular": [ "jquery" ],
+        "ngProgress": [ "angular" ],
+        "uiRoute": [ "angular" ],
+        "ocLazyLoad": [ "angular" ],
+        "AcGenerator": [ "uiRoute", "ngProgress", "ocLazyLoad" ]
+    }
+}

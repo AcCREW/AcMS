@@ -1,0 +1,30 @@
+ - Need 'cache' directory to have write permitions
+ 
+ Ubuntu:
+	- sudo apt-get update
+	- sudo apt-get install php5-mysql
+	- sudo apt-get install php5-gd
+
+ - MySQL
+	- in my.ini should be added this line "lower_case_table_names=2"
+
+ - SQL
+	- auth 
+		ALTER TABLE `realmlist`
+		ADD COLUMN `char_db`  varchar(255) NULL DEFAULT 'characters' AFTER `Battlegroup`,
+		ADD COLUMN `world_db`  varchar(255) NULL DEFAULT 'world' AFTER `char_db`,
+		ADD COLUMN `p_limit`  int(11) NULL DEFAULT 1000 AFTER `world_db`,
+		ADD COLUMN `core`  varchar(255) NULL AFTER `p_limit`;
+		ADD COLUMN `ra`  tinyint(3) NULL AFTER `core`,
+		ADD COLUMN `ra_port`  int(11) NULL AFTER `ra`,
+		ADD COLUMN `soap`  tinyint(3) NULL AFTER `ra_port`,
+		ADD COLUMN `soap_port`  int(11) NULL AFTER `soap`,
+		ADD COLUMN `unstuck_price`  decimal(10,2) NULL AFTER `soap_port`,
+		ADD COLUMN `teleport_price`  decimal(10,2) NULL AFTER `unstuck_price`,
+		ADD COLUMN `unstuck`  tinyint(3) NULL AFTER `teleport_price`,
+		ADD COLUMN `teleport`  tinyint(3) NULL AFTER `unstuck`,
+		ADD COLUMN `changes`  tinyint(3) NULL AFTER `teleport`,
+		ADD COLUMN `change_faction_price`  decimal(10,2) NULL AFTER `changes`,
+		ADD COLUMN `change_race_price`  decimal(10,2) NULL AFTER `change_faction_price`,
+		ADD COLUMN `change_appearance_price`  decimal(10,2) NULL AFTER `change_race_price`,
+		ADD COLUMN `3d_char_preview`  tinyint(3) NULL AFTER `change_appearance_price`;

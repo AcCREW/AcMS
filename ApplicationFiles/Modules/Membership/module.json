@@ -1,0 +1,13 @@
+﻿{
+    "Title": "Membership",
+    "Author": "Ac0",
+    "Enabled": true,
+    "RequireAngularJS": false,
+    "CSS": [
+    ],
+    "JS": { 
+    },
+    "JSSchemes": {
+    }
+
+}

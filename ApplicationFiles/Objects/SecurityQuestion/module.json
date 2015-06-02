@@ -1,0 +1,8 @@
+﻿{
+    "Text": "SecurityQuestion",
+    "Name": "SecurityQuestion",
+	"Properties": {
+		"SecurityQuestionID",
+		"Name"
+	}
+}

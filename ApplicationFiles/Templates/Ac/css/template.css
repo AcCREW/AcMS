@@ -1,0 +1,243 @@
+* {
+	margin:0;	
+	padding:0;
+}
+@font-face {
+	font-family: "Morpheus";
+	src: url('../font/morpheus.ttf');
+}
+body{
+	background-color:#e4e4e4;
+	font-size:12px;
+	font-family:"Morpheus";
+	color:#8A8A8A;
+	line-height:160%;
+	text-align: left;
+}
+strong:hover{
+	color:#9bd32f;
+}
+a{
+	text-decoration: none;
+	color: #AAAAAA;
+}
+a:hover{
+	color: #000000;
+}
+a.active{
+	color: #000000;
+}
+html, body {
+	height:100%;
+}
+label {
+	cursor: pointer;
+}
+img {
+	border:none; 
+}
+li {
+    text-decoration: none;
+    list-style: none;
+}
+textarea {
+    text-align: justify;
+}
+input, textarea, select {
+	background-color:#d5d5d5;
+	border: 1px solid #BBBBBB;
+	padding: 5px;
+	font-weight: bold;
+	color: #5f5f5f;
+	margin: 5px 0px 5px 0px;
+}
+input[type="text"], input[type="password"] {
+	min-width:170px;
+}
+input[type="submit"], input[type="button"] {
+	cursor:pointer;
+	text-align:center; 
+	min-width: 80px;
+}
+input[type="submit"]:active, input[type="button"]:active {
+	background-color:#dfdfdf;
+}
+input.cool {
+	background-color:#5e5e5e;
+	color: #999999;
+}
+input.cool[type="submit"]:hover, input.cool[type="button"]:hover {
+	background-color:#6b6b6b;
+}
+input.cool[type="submit"]:active, input.cool[type="button"]:active {
+	background-color:#6b6b6b;
+	color:#000000;
+}
+.body{
+	font-family: tahoma;
+}
+.hidden {
+	visibility: hidden;
+	display: none;
+}
+.label{
+	margin-top: 12px;
+}
+.right{
+	float: right;
+}
+.left{
+	float: left;
+}
+.clear{
+	clear: both; 
+	display: block;
+}
+.wrapper{
+	min-height: 100%;
+	margin-bottom:-60px;
+	position:relative;
+}
+.container {
+    margin: 0 auto;
+	width:960px;
+}
+.container .content {
+	text-align: left;
+}
+.push{
+	height:20px;
+}
+.clearfooter {
+	height: 45px;
+	clear:both;
+}
+.footer {
+	color: #636363;
+	width: 961px;
+	height:25px;
+	margin-top:15px;
+	position:absolute;
+	z-index:100;
+	background-color:#eeeeee;
+	-moz-box-shadow: 0 0 2px 2px #d5d5d5;
+	-webkit-box-shadow: 0 0 2px 2px #d5d5d5;
+	box-shadow: 0 0 2px 2px #d5d5d5;
+}
+.container .footer  span {
+	margin:5px 10px 0px 10px;
+}
+
+.menu{
+	width: 100%;
+	height: 40px;
+	background-color:#eeeeee;
+	-moz-box-shadow: 0 0 2px 2px #d5d5d5;
+	-webkit-box-shadow: 0 0 2px 2px #d5d5d5;
+	box-shadow: 0 0 2px 2px #d5d5d5;
+}
+.menu li{
+	float: left;
+	text-align: center;
+	display: inline;
+	min-width: 10px;
+	padding: 10px 15px 10px 15px;
+	height: 20px;
+	font-size: 18px;
+	font-weight: bold;
+	vertical-align: middle;
+	border-right: 1px solid #d5d5d5;
+}
+.menu li.last{
+	border-right: none;
+}
+.menu li.item:hover{
+	-webkit-box-shadow:inset 0 0 35px #FFF;
+	box-shadow:inset 0 0 35px #FFF;
+	color: #000 !important;
+}
+.logo{
+	width: 100%;
+	height: 100px;
+}
+.logo span{
+	text-align: left;
+	margin: 40px 0px 0px 40px;
+	font-size: 50px;
+	float: left;
+}
+.body{
+	width: 100%;
+	min-height: 100px;
+	background-color:#eeeeee;
+	-moz-box-shadow: 0 0 2px 2px #d5d5d5;
+	-webkit-box-shadow: 0 0 2px 2px #d5d5d5;
+	box-shadow: 0 0 2px 2px #d5d5d5;
+}
+.body .left_body {
+	float: left;
+	margin: 10px 0px 10px 10px;
+	width: 600px;
+	min-height: 350px;
+}
+.body .left_body .slider{
+	width:600px;
+	height: 250px;
+	border: 1px solid #d5d5d5;
+}
+.body .left_body .box_title{
+	font-family:"Morpheus";
+	font-size: 18px;
+	width: 590px;
+	height: 25px;
+	padding-left: 10px;
+	text-align: left;
+	border-bottom: 1px solid #d5d5d5;
+}
+.body .left_body .box_content{
+	text-align: justify;
+	width: 580px;
+	padding: 10px;
+	margin-bottom: 10px;
+}
+.body .right_body {
+	float: right;
+	margin: 10px 10px 10px 0px;
+	width: 320px;
+	min-height: 350px;
+}
+.body .right_body .box_title{
+	font-family:"Morpheus";
+	font-size: 18px;
+	width: 310px;
+	height: 25px;
+	padding-left: 10px;
+	text-align: left;
+	border-bottom: 1px solid #d5d5d5;
+}
+.body .right_body .box_content{
+	text-align: left;
+	width: 300px;
+	padding: 10px;
+	margin-bottom: 10px;
+}
+.body .right_body .box_content .bar{
+	width: 100%;
+	background-color: #d5d5d5;
+	height: 10px;
+	border-radius:5px;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+}
+.body .right_body .box_content .bar .filled{
+	float: left;
+	width: 200px;
+	background-color: #209696;
+	height: 10px;
+	-moz-box-shadow: 0 0 1px 1px #30c6c6;
+	-webkit-box-shadow: 0 0 1px 1px #30c6c6;
+	box-shadow: 0 0 1px 1px #30c6c6;
+	border-radius:5px;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+}

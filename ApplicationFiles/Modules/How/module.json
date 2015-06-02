@@ -1,0 +1,13 @@
+﻿{
+    "Title": "How To Connect",
+    "Author": "Ac0",
+    "Enabled": true,
+    "RequireAngularJS": false,
+    "CSS": [
+    ],
+    "JS": { 
+    },
+    "JSSchemes": {
+    }
+
+}

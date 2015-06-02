@@ -1,0 +1,13 @@
+﻿{
+    "Title": "Register account",
+    "Author": "Ac0",
+    "Enabled": true,
+    "RequireAngularJS": true,
+    "CSS": [
+    ],
+    "JS": { 
+    },
+    "JSSchemes": {
+    }
+
+}

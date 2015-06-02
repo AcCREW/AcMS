@@ -1,0 +1,1 @@
+<div class="alert alert_type_success">{Content}</div>
