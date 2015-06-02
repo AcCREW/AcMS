@@ -147,7 +147,7 @@ class OUser extends AcObject {
             return true;
         }
         
-		$arRealmlistCollection = CRealmlist::Collection();
+		$arRealmlistCollection = ORealmlist::Collection();
         $sCharacterInfo = "NULL";
         $nRealmlistCount = sizeof($arRealmlistCollection);
 		if($nRealmlistCount > 0) {

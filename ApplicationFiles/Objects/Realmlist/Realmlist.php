@@ -35,7 +35,7 @@
  *
  */
 class ORealmlist extends AcObject {
-    public function CRealmlist($nRecordID = null) {
+    public function ORealmlist($nRecordID = null) {
         parent::__construct($nRecordID);
     }
 	
