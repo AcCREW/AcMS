@@ -214,3 +214,5 @@ $RECYCLE.BIN/
 *.msi
 *.msm
 *.msp
+
+Temp/*
