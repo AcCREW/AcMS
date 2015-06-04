@@ -2,6 +2,7 @@
 
 class Loader {
     static $JSON = array();
+    static $OD = array();
     
     public static function LoadLibrary($sName, $bInitialize) {
         return self::Load($sName, LIBRARIES, $bInitialize);
@@ -18,62 +19,97 @@ class Loader {
     public static function LoadHelper($sName) {
         return self::Load($sName, HELPERS);
     }
+	
+	/**
+	 * Summary of LoadOD
+	 * @param string $sClassName 
+	 * @return Error|AcObjectDescriptor
+	 */
+	public static function LoadOD($sClassName) {
+		if(mb_substr($sClassName, 0, 1, "UTF-8") == 'O' && ($sChar = mb_substr ($sClassName, 1, 1, "UTF-8")) != mb_strtolower($sChar, "UTF-8")) {
+			$sClassName = mb_substr($sClassName, 1, mb_strlen($sClassName, "UTF-8"), "UTF-8");
+		}
+		
+		$sPath = APPPATH.OBJECTS.'/'.$sClassName.'/'.$sClassName.'.'.OBJECT_DESCRIPTOR.EXT;
+		if(isset(self::$OD[$sPath])) {
+			return self::$OD[$sPath];
+		}
+		if(($vRetVal = self::LoadFile($sPath, true)) instanceof Error) {
+			return $vRetVal;
+		}
+		
+		$sClass = OBJECT_DESCRIPTOR.$sClassName;
+		$OD = new $sClass();
+		
+		self::$OD[$sPath] = $OD;
+		
+		return $OD;
+	}
     
-    public static function LoadJSON($sNamePath, $sType = MODULES, &$Module = null) {
+    public static function LoadJSON($sNamePath, $sType = MODULES) {
         $arName = explode('/', $sNamePath);
         $sName = ucfirst(end($arName));
-        if(isset(self::$JSON[$sName])) {
-            return self::$JSON[$sName];
-        }
-        $sPath = null;
-        $sString = null;
-        $sDir = null;
-        if($sType == MODULES) {
-            $sDir = APPPATH.MODULES.'/'.$sNamePath.'/';
-            $sPath = $sDir.MODULE_JSON;
-            $sString = 'module';
-        } elseif($sType == TEMPLATES) {
-            $sDir = APPPATH.TEMPLATES.'/'.$sNamePath.'/';
-            $sPath = $sDir.TEMPLATE_JSON;
-            $sString = 'template';
-        } elseif($sType == DEFAULT_CONTENT) {
-            $sDir = CONTENTPATH;
-			$sPath = $sDir.DEFAULT_JSON;
-            $sString = 'default content template';
+		$sIndex = $sType.'/'.$sName;
+     
+		if(isset(self::$JSON[$sIndex])) {
+            $Object = self::$JSON[$sIndex];
         } else {
-            show_error("Invalid request for JSON.");
-        }
-        $Object = json_decode(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', self::LoadFile($sPath)));
-        if(!$Object->Enabled) {
-            show_error("The ".$sString." '".$sName."' is not enabled.");
-        }
-        if(!property_exists($Object, 'RequireAngularJS')) {
-			$Object->RequireAngularJS = false;
-        }
-        if(property_exists($Object, 'CSS')) {
-            foreach($Object->CSS as $sLink) {
-                Application::$_this->LoadCSS(ACPATH.$sDir.$sLink);
+			$sPath = null;
+			$sDir = null;
+			if($sType == MODULES) {
+				$sDir = APPPATH.MODULES.'/'.$sNamePath.'/';
+				$sPath = $sDir.MODULE_JSON;
+			} elseif($sType == TEMPLATES) {
+				$sDir = APPPATH.TEMPLATES.'/'.$sNamePath.'/';
+				$sPath = $sDir.TEMPLATE_JSON;
+			} elseif($sType == OBJECTS) { 
+				$sDir = APPPATH.OBJECTS.'/'.$sNamePath.'/';
+				$sPath = $sDir.OBJECT_JSON;
+			} elseif($sType == DEFAULT_CONTENT) {
+				$sDir = CONTENTPATH;
+				$sPath = $sDir.DEFAULT_JSON;
+			} else {
+				return new Error("Invalid request for JSON.");
+			}
+			
+			if(($vRetVal = self::LoadFile($sPath)) instanceof Error) {
+				return $vRetVal;
+			}
+			
+			$Object = json_decode(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $vRetVal));
+			if(is_null($Object)) {
+				return new Error("Invalid JSON file '".$sPath."'.");
+			}
+			$Object->Dir = $sDir;
+			self::$JSON[$sIndex] = $Object;
+		}
+		if(in_array($sType, array(TEMPLATES, MODULES, DEFAULT_CONTENT))) {
+			if(property_exists($Object, 'Enabled') && !$Object->Enabled) {
+				show_error("The '".$sName."' (".$sType.") is not enabled.");
+			}
+			if(!property_exists($Object, 'RequireAngularJS')) {
+				$Object->RequireAngularJS = false;
+			}
+			if(property_exists($Object, 'CSS')) {
+				foreach($Object->CSS as $sLink) {
+					Application::$_this->LoadCSS(ACPATH.$Object->Dir.$sLink);
+				}
+			}
+			if(property_exists($Object, 'JS')) {
+				foreach($Object->JS as $sKey => $sLink) {
+					Application::$_this->LoadJS($sKey, ACPATH.$Object->Dir.$sLink);
+				}
+			}
+			if(property_exists($Object, 'JSSchemes')) {
+				foreach($Object->JSSchemes as $sKey => $sLink) {
+					Application::$_this->LoadJSScheme($sKey, $sLink);
+				}
+			}
+			if(empty(Application::$Title) && property_exists($Object, 'Title')) {
+                Application::$Title = $Object->Title;
             }
-        }
-        if(property_exists($Object, 'JS')) {
-            foreach($Object->JS as $sKey => $sLink) {
-                Application::$_this->LoadJS($sKey, ACPATH.$sDir.$sLink);
-            }
-        }
-        if(property_exists($Object, 'JSSchemes')) {
-            foreach($Object->JSSchemes as $sKey => $sLink) {
-                Application::$_this->LoadJSScheme($sKey, $sLink);
-            }
-        }
-        $Object->Dir = $sDir;
-        if(!is_null($Module)) {
-            foreach (get_object_vars($Object) as $sKey => $vValue) {
-                $Module->{'_'.$sKey} = $vValue;
-            }
-            if(empty(Application::$Title) && property_exists($Object, '_Title')) {
-                Application::$Title = $Object->_Title;
-            }
-        }
+		}
+		
         return $Object; 
     }
     

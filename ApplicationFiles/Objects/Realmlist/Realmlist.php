@@ -39,18 +39,13 @@ class ORealmlist extends AcObject {
         parent::__construct($nRecordID);
     }
 	
-	public static function _Initialize() {
-		self::$PrimaryKey = 'id';
-        self::$ObjectName = 'Realmlist';
-        self::$ObjectTableName = '`'.Application::$AuthDB.'`.`realmlist`';
-        self::$UseCache = true;
-	}
-	
 	/**
 	* @return ORealmlist[]
 	*/
 	public static function Collection($sCriteria = null, $sOrderBy = null, $nPage = null, $nLimit = null) {
-		$bGetCachedAllRealmlists = self::$UseCache && is_null($sCriteria) && is_null($sOrderBy) && is_null($nPage) && (is_null($nLimit) || $nLimit == -1);
+		$OD = self::LoadOD();
+
+		$bGetCachedAllRealmlists = $OD->UseCache && is_null($sCriteria) && is_null($sOrderBy) && is_null($nPage) && (is_null($nLimit) || $nLimit == -1);
 		
 		if($bGetCachedAllRealmlists && ($arDataCollection = CCache::Get('Realmlists')) !== false) {
 			

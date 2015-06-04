@@ -10,18 +10,13 @@ class OSecurityQuestion extends AcObject {
         parent::__construct($nRecordID);
     }
 	
-	public static function _Initialize() {
-		self::$PrimaryKey = 'SecurityQuestionID';
-        self::$ObjectName = 'SecurityQuestion';
-        self::$ObjectTableName = '`'.Application::$CMSDB.'`.`SecurityQuestion`';
-        self::$UseCache = true;
-	}
-	
 	/**
 	 * @return OSecurityQuestion[]
 	*/
 	public static function Collection($sCriteria = null, $sOrderBy = null, $nPage = null, $nLimit = null) {
-		$bGetCachedAllSecurityQuestions = self::$UseCache && is_null($sCriteria) && is_null($sOrderBy) && is_null($nPage) && (is_null($nLimit) || $nLimit == -1);
+		$OD = self::LoadOD();
+		
+		$bGetCachedAllSecurityQuestions = $OD->UseCache && is_null($sCriteria) && is_null($sOrderBy) && is_null($nPage) && (is_null($nLimit) || $nLimit == -1);
 		
 		if($bGetCachedAllSecurityQuestions && ($arDataCollection = CCache::Get('SecurityQuestions')) !== false) {
 			

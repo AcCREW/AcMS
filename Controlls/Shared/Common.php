@@ -97,8 +97,13 @@ if (!function_exists('Dump')) {
         echo '<br /><span style="color:#FF0000; font-weight:bold">&lt;/Dump&gt;</span></pre>';
         $sContent = ob_get_contents();
         ob_end_clean();
+		
+		if(Application::$_this->Action != Application::_ACTION_INITIALIZE_ACDB) {
+			Application::$DumpContent .= $sContent;
+		} else {
+			echo $sContent;
+		}
         
-        Application::$DumpContent .= $sContent;
     }
 }
 if (!function_exists('ConvertBytesToString')) {

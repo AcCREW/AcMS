@@ -71,6 +71,9 @@
             if (_Data.UpdateJS !== undefined) {
                 userService.UpdateJS(_Data.UpdateJS);
             }
+            if (_Data.Dump !== undefined) {
+                console.dir(_Data.Dump);
+            }
         }, function (Error) {
             console.log(Error);
         });

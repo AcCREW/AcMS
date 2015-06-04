@@ -26,17 +26,10 @@
  *
  */
 class OUser extends AcObject {
-    public function CUser($nRecordID = null) {
+    public function OUser($nRecordID = null) {
         parent::__construct($nRecordID);
     }
 	
-	public static function _Initialize() {
-		self::$PrimaryKey = 'UserID';
-        self::$ObjectName = 'User';
-        self::$ObjectTableName = '`'.Application::$CMSDB.'`.`User`';
-        self::$UseCache = true;
-	}
-    
     public function Update() {
         $bNeedUpdate = false;
         $arPropertiesNeedsUpdate = array();

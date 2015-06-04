@@ -34,7 +34,7 @@ class Application {
     
     static $Config = array();
     
-    protected $Action = self::_ACTION_INITIALIZE_ACDB;
+    public $Action = self::_ACTION_INITIALIZE_ACDB;
     
     private $PreloadedJSs = null;
     private $PreloadedJSSchemes = null;
@@ -87,6 +87,9 @@ class Application {
                 if(property_exists($Module, 'Location') && !empty($Module->Location) && $Module->Location != 'null') {
 					$SubmitCallbackArguments->Location = $Module->Location;
 				}
+				if(!empty(self::$DumpContent)) {
+					$SubmitCallbackArguments->Dump = self::$DumpContent;
+				}
 				//$SubmitCallbackArguments->_Type = 'SubmitCallbackArguments';
 				//if(!is_array($vReturn)) {
 				//    $SubmitCallbackArguments->Message = $vReturn->Message;
@@ -132,11 +135,11 @@ class Application {
                 if(!method_exists($Module, $sFunction)) {
                     show_error("Function '".$sFunction."' doesn't exists in class '".$sModule."'.");
                 }
-                Loader::LoadJSON($sModule, MODULES, $Module);
+                $JSONObject = Loader::LoadJSON($sModule, MODULES);
                 $sContent = call_user_func_array(array(&$Module, $sFunction), array());
 				$sTitle = Application::$Title;
-				if(empty($sTitle) && property_exists($Module, '_Title')) {
-					$sTitle = $Module->_Title;
+				if(empty($sTitle) && property_exists($JSONObject, 'Title')) {
+					$sTitle = $JSONObject->Title;
 				}
 				if($sModule != 'Index') {
 					$arData = array(
@@ -151,7 +154,7 @@ class Application {
                 $arData['SiteTitle'] = Application::GetConfig('SITE_TITLE');
                 $arData['Module'] = $sModule;
                 $arData['Function'] = $sFunction;
-                $arData['RequireAngularJS'] = $Module->_RequireAngularJS;
+                $arData['RequireAngularJS'] = $JSONObject->RequireAngularJS;
 				if(method_exists($Module, 'GetProperties')) {
 					$arData['UpdateJS'] = $Module->GetProperties();
 				}
@@ -168,13 +171,9 @@ class Application {
     }
     
     private function Initialize() {
-		if(isset($_GET['Template'])) {
-			self::SetConfig('TEMPLATE', $_GET['Template']);
-		}
 		self::$AuthDB = self::GetConfig('MYSQL_AUTH_DB');
         self::$CMSDB = self::GetConfig('MYSQL_DEFAULT_DB');
-		self::$Template = self::GetConfig('TEMPLATE') !== false ? self::GetConfig('TEMPLATE') : DEFAULT_TEMPLATE;
-		self::$TemplateDir = '../Templates/'.self::$Template;
+		
         $this->PreloadedJSs = new stdClass();
         $this->PreloadedJSSchemes = new stdClass();
         foreach(self::GetConfig('AUTOLOAD_LIBRARIES') as $sLibrarieName) {
@@ -183,7 +182,12 @@ class Application {
         foreach(self::GetConfig('AUTOLOAD_HELPERS') as $sHelperName) {
             Loader::LoadHelper($sHelperName);
         }
-		Loader::LoadJSON('', DEFAULT_CONTENT);
+		if(($nAction = CInput::PostGet('Action')) !== false) {
+            $this->Action = $nAction;    
+        }
+		if($nAction == self::_ACTION_INITIALIZE_ACDB) {
+			Loader::LoadJSON('', DEFAULT_CONTENT);
+		}
 		if(self::$IsLogged) {
 			$nUserID = CSession::Get('UserID');
 			if(empty($nUserID)){
@@ -192,10 +196,9 @@ class Application {
 				self::$User = new OUser($nUserID);
 			}
 		}
-		$nAction = CInput::PostGet('Action');
-        if($nAction !== false) {
-            $this->Action = $nAction;    
-        }
+		
+		self::$Template = self::GetConfig('TEMPLATE') !== false ? self::GetConfig('TEMPLATE') : DEFAULT_TEMPLATE;
+		self::$TemplateDir = '../Templates/'.self::$Template;
     }
 
     public static function SetConfig($sKey, $vValue) {

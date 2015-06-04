@@ -42,9 +42,6 @@ class Index {
                 '.(!empty($nRecordID) ? '`'.Application::$CMSDB.'`.`Topic`.`TopicID` = '.$nRecordID : 'TRUE').'
             LIMIT '.$nStartRecord.', '.$nLimit);
         
-		$sTemplate =  Application::GetConfig('TEMPLATE') !== false ? Application::GetConfig('TEMPLATE') : DEFAULT_TEMPLATE;
-		$sTemplateDir =  '../Templates/'.$sTemplate;
-		
         while(!$rs->EOF) {
             if(!empty($nRecordID)) {
                 Application::$Title = $rs->Title;
@@ -54,7 +51,7 @@ class Index {
 				'BoxContent' => CParser::Parse('Topic', 'Index', $rs),
 				'BoxTitle' => '<a href="#/Index/'.$rs->TopicID.'">'.$rs->Title.'</a>'
 			);
-			$sContent .= CParser::Parse('_RightBox', $sTemplateDir, $arData);
+			$sContent .= CParser::Parse('_RightBox', Application::$TemplateDir, $arData);
             $rs->MoveNext();
         }
 		

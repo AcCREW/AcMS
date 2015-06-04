@@ -2,16 +2,10 @@
 
 class AcObject extends AcControl {
     protected $RecordID = null;
+	protected $OD = null;
     
-    protected static $ObjectName = null;
-    protected static $PrimaryKey = null;
-    protected static $ObjectTableName = null;
-    protected static $UseCache = false;
-    
-    public function __construct($nRecordID = null) {
-        if(empty(self::$ObjectName) || empty(self::$PrimaryKey) || empty(self::$ObjectTableName)) {
-            trigger_error('U must fill "ObjectName", "PrimaryKey" AND "ObjectTableName" properties of your class.');
-        }
+    public function __construct($nRecordID = null) {	
+		$this->OD = self::LoadOD();
         if(!empty($nRecordID)) {
             $this->RecordID = $nRecordID;
             $this->Load();
@@ -19,11 +13,12 @@ class AcObject extends AcControl {
     }
     
     public function Update() {
+		$sObjectTableName = $this->OD->ObjectTableName;
+		$sPrimaryKey = $this->OD->PrimaryKey;
         $nRecordID = $this->RecordID;
         $bNeedUpdate = false;
         $arPropertiesNeedsUpdate = array();
-        $sObjectTableName = self::$ObjectTableName;
-
+		
         foreach($this->_arPendingData as $sPendingProperty => $vPendingValue) {
             if($this->arData[$sPendingProperty] != $vPendingValue) {
                 $bNeedUpdate = true;
@@ -44,7 +39,7 @@ class AcObject extends AcControl {
                 UPDATE
 	                '.$sObjectTableName.'
                 SET '.$sUpdateString.' 
-                WHERE '.$sObjectTableName.'.'.self::$PrimaryKey.' = '.$nRecordID);
+                WHERE '.$sObjectTableName.'.'.$sPrimaryKey.' = '.$nRecordID);
 			
         }
         
@@ -52,19 +47,21 @@ class AcObject extends AcControl {
     }
     
     protected function Load() {        
+		$sObjectTableName = $this->OD->ObjectTableName;
+		$sPrimaryKey = $this->OD->PrimaryKey;
+		$sObjectName = $this->OD->Name;
+		$bUseCache = $this->OD->UseCache;
         $nRecordID = $this->RecordID;
         
-        if(self::$UseCache && ($DataSource = CCache::Get(self::$ObjectName.'_'.$nRecordID)) !== false) {
+        if($bUseCache && ($DataSource = CCache::Get($sObjectName.'_'.$nRecordID)) !== false) {
             $this->arData = $DataSource;
 
             return true;
         }
         
-        $sObjectTableName = self::$ObjectTableName;
-        
-		self::_Load($sObjectTableName.'.'.self::$PrimaryKey.' = '.$nRecordID, null, null, null, $this);
+		self::_Load($sObjectTableName.'.'.$sPrimaryKey.' = '.$nRecordID, null, null, null, $this);
 		
-		if(self::$UseCache) {
+		if($bUseCache) {
             CCache::Save($this->ObjectName.'_'.$nRecordID, $this->arData, 60);
         }
 		
@@ -76,7 +73,9 @@ class AcObject extends AcControl {
     }
 	
     protected static function _Load($sCriteria = null, $sOrderBy = null, $nPage = null, $nLimit = null, &$Instance = null) {
-        $sObjectTableName = self::$ObjectTableName;
+		$OD = self::LoadOD();
+		
+        $sObjectTableName = $OD->ObjectTableName;
 		
 		$bIsNotCollection = !is_null($Instance);
         
@@ -112,7 +111,7 @@ class AcObject extends AcControl {
 				$Instance->arData = $rs->RowData;
 				return array();
 			} else {
-				$sObjectName = OBJECTS_PREFFIX.self::$ObjectName;
+				$sObjectName = OBJECTS_PREFFIX.$OD->Name;
 				$Object =  new $sObjectName();
 				$Object->arData = $rs->RowData;
 				$arDataCollection[] = $Object;
@@ -126,6 +125,16 @@ class AcObject extends AcControl {
 	
 	public static function Collection($sCriteria = null, $sOrderBy = null, $nPage = null, $nLimit = null) {
 		return self::_Load($sCriteria, $sOrderBy, $nPage, $nLimit);
+	}
+	
+	public static function LoadOD() {
+		$sClassName = get_called_class();
+		if(($vRetValue = Loader::LoadOD($sClassName)) instanceof Error) {
+			trigger_error($vRetValue->Message);
+			return null;
+		}
+		
+		return $vRetValue;
 	}
 	
 }

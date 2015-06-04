@@ -52,6 +52,7 @@ define('CSS', 'css');
 define('APP_START', 'APP_START');
 define('MODULES', 'Modules');
 define('OBJECTS', 'Objects');
+define('OBJECT_DESCRIPTOR', 'OD');
 define('OBJECTS_PREFFIX', 'O');
 define('LIBRARIES_PREFFIX', 'C');
 define('DEFAULT_CONTENT', 'Default');
