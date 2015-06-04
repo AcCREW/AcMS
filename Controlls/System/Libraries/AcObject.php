@@ -19,7 +19,10 @@ class AcObject extends AcControl {
         $bNeedUpdate = false;
         $arPropertiesNeedsUpdate = array();
 		
-        foreach($this->_arPendingData as $sPendingProperty => $vPendingValue) {
+        foreach($this->arPendingData as $sPendingProperty => $vPendingValue) {
+			if(!in_array($sPendingProperty, $this->OD->Properties)) {
+				continue;
+			}
             if($this->arData[$sPendingProperty] != $vPendingValue) {
                 $bNeedUpdate = true;
                 $arPropertiesNeedsUpdate[] = $sPendingProperty;

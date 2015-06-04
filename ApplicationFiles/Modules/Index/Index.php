@@ -8,6 +8,11 @@ class Index {
     public function Index() {
         $this->RecordID = CInput::Get('RecordID');
         $nPage = CInput::Get('Page');
+		$SecurityQuestion = new OSecurityQuestion(1);
+		$SecurityQuestion->Name = 'asd';
+		Dump($SecurityQuestion);
+		$SecurityQuestion->Update();
+		
         if($nPage <= 0) {
             $nPage = 1;
         }
