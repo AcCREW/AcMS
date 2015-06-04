@@ -15,7 +15,9 @@ class AcObject extends AcControl {
     public function Update() {
 		$sObjectTableName = $this->OD->ObjectTableName;
 		$sPrimaryKey = $this->OD->PrimaryKey;
+		$sClassName = $this->OD->Name;
         $nRecordID = $this->RecordID;
+		$bUseCache = $this->OD->UseCache;
         $bNeedUpdate = false;
         $arPropertiesNeedsUpdate = array();
 		
@@ -43,6 +45,12 @@ class AcObject extends AcControl {
 	                '.$sObjectTableName.'
                 SET '.$sUpdateString.' 
                 WHERE '.$sObjectTableName.'.'.$sPrimaryKey.' = '.$nRecordID);
+			
+			if($bUseCache) {
+				foreach (glob(CCache::$CACHE_PATH.$sClassName."*") as $sFileName) {
+					@unlink($sFileName);
+				}
+			}
 			
         }
         

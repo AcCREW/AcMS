@@ -7,7 +7,7 @@
  */
 class CCache {
     
-    private static $CACHE_PATH = './Temp/';
+    public static $CACHE_PATH = './Temp/';
 
 	/**
 	 * Constructor
