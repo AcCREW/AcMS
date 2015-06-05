@@ -1,8 +1,8 @@
 <?php
 
 class AcObject extends AcControl {
-    protected $RecordID = null;
-	protected $OD = null;
+    public $RecordID = null;
+	public $OD = null;
     
     public function __construct($nRecordID = null) {	
 		$this->OD = self::LoadOD();
@@ -16,36 +16,49 @@ class AcObject extends AcControl {
 		$sObjectTableName = $this->OD->ObjectTableName;
 		$sPrimaryKey = $this->OD->PrimaryKey;
 		$sClassName = $this->OD->Name;
-        $nRecordID = $this->RecordID;
 		$bUseCache = $this->OD->UseCache;
+		
+        $nRecordID = $this->RecordID;
+		$bIsAdd = empty($nRecordID);
         $bNeedUpdate = false;
         $arPropertiesNeedsUpdate = array();
 		
         foreach($this->arPendingData as $sPendingProperty => $vPendingValue) {
-			if(!in_array($sPendingProperty, $this->OD->Properties)) {
+			if($sPendingProperty == $sPrimaryKey || !in_array($sPendingProperty, $this->OD->Properties)) {
 				continue;
 			}
-            if($this->arData[$sPendingProperty] != $vPendingValue) {
+            if(!isset($this->arData[$sPendingProperty]) || $this->arData[$sPendingProperty] != $vPendingValue) {
                 $bNeedUpdate = true;
-                $arPropertiesNeedsUpdate[] = $sPendingProperty;
+                $arPropertiesNeedsUpdate[$sPendingProperty] = $vPendingValue;
                 $this->arData[$sPendingProperty] = $vPendingValue;
             }
         }
 
         if($bNeedUpdate && sizeof($arPropertiesNeedsUpdate) > 0) {
-            $arUpdateString = array();
-            foreach($arPropertiesNeedsUpdate as $sPropertyName) {
-                $arUpdateString[] = $sObjectTableName.'.'.$sPropertyName.' = "'.$this->GetPropertyValue($sPropertyName).'"';
-            }
+			if($bIsAdd) {
+				CRecordset::Execute('
+					INSERT INTO	`SecurityQuestion` 
+						(`'.implode('`, `', array_keys($arPropertiesNeedsUpdate)).'`) 
+					VALUES 
+						("'.implode('", "', $arPropertiesNeedsUpdate).'")');
+				$nRecordID = CRecordset::LastInsertedID();
+				
+				$this->RecordID = $nRecordID;
+				$this->SetPropertyValue($sPrimaryKey, $nRecordID);
+			} else {
+				$arUpdateString = array();
+				foreach($arPropertiesNeedsUpdate as $sPropertyName => $vValue) {
+					$arUpdateString[] = $sObjectTableName.'.'.$sPropertyName.' = "'.$vValue.'"';
+				}
 
-            $sUpdateString = implode(', ', $arUpdateString);
+				$sUpdateString = implode(', ', $arUpdateString);
 
-            CRecordset::Execute('
-                UPDATE
-	                '.$sObjectTableName.'
-                SET '.$sUpdateString.' 
-                WHERE '.$sObjectTableName.'.'.$sPrimaryKey.' = '.$nRecordID);
-			
+				CRecordset::Execute('
+					UPDATE
+						'.$sObjectTableName.'
+					SET '.$sUpdateString.' 
+					WHERE '.$sObjectTableName.'.'.$sPrimaryKey.' = '.$nRecordID);
+			}
 			if($bUseCache) {
 				foreach (glob(CCache::$CACHE_PATH.$sClassName."*") as $sFileName) {
 					@unlink($sFileName);
