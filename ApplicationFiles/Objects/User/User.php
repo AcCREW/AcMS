@@ -34,94 +34,134 @@ class OUser extends AcObject {
         $bNeedUpdate = false;
         $arPropertiesNeedsUpdate = array();
         $nUserID = $this->RecordID;
-
-        foreach($this->_arPendingData as $sPendingProperty => $vPendingValue) {
-            if($this->arData[$sPendingProperty] != $vPendingValue && !in_array($sPendingProperty, array('CharactersInfo', 'UserID'))) {
+		$bIsAdd = empty($nUserID);
+		
+		foreach($this->arPendingData as $sPendingProperty => $vPendingValue) {
+			if($sPendingProperty == 'UserID' || !in_array($sPendingProperty, $this->OD->Properties)) {
+				continue;
+			}
+            if(!isset($this->arData[$sPendingProperty]) || $this->arData[$sPendingProperty] != $vPendingValue) {
                 $bNeedUpdate = true;
-                $arPropertiesNeedsUpdate[] = $sPendingProperty;
+                $arPropertiesNeedsUpdate[$sPendingProperty] = $vPendingValue;
                 $this->arData[$sPendingProperty] = $vPendingValue;
             }
         }
+		$this->arPendingData = array();
 
         if($bNeedUpdate && sizeof($arPropertiesNeedsUpdate) > 0) {
-            $arUpdateString = array();
+            $arAUserUpdateString = array();
+            $arCUserUpdateString = array();
             $sUpdateString = '';
 
             #region Construct Update Query
-            foreach($arPropertiesNeedsUpdate as $sPropertyName) {
+            foreach($arPropertiesNeedsUpdate as $sPropertyName => $vValue) {
                 switch($sPropertyName) {
                     case 'Email':
-                        $arUpdateString[] = 'AUser.`email` = "'.$this->Email.'"';
+                        $arAUserUpdateString['email'] = $vValue;
                         break;
                     case 'Username':
-                        $arUpdateString[] = 'AUser.`username` = "'.$this->Username.'"';
+                        $arAUserUpdateString['username'] = $vValue;
                         break;
                     case 'SHAPassHash':
-                        $arUpdateString[] = 'AUser.`sha_pass_hash` = "'.$this->SHAPassHash.'"';
+                        $arAUserUpdateString['sha_pass_hash'] = $vValue;
                         break;
                     case 'Expansion':
-                        $arUpdateString[] = 'AUser.`expansion` = "'.$this->Expansion.'"';
+                        $arAUserUpdateString['expansion'] = $vValue;
                         break;
                     case 'JoinDate':
-                        $arUpdateString[] = 'AUser.`joindate` = "'.$this->JoinDate.'"';
+                        $arAUserUpdateString['joindate'] = $vValue;
                         break;
                     case 'LastIP':
-                        $arUpdateString[] = 'AUser.`last_ip` = "'.$this->LastIP.'"';
+                        $arAUserUpdateString['last_ip'] = $vValue;
                         break;
                     case 'LastLogin':
-                        $arUpdateString[] = 'AUser.`last_login` = "'.$this->LastLogin.'"';
+                        $arAUserUpdateString['last_login'] = $vValue;
                         break;
                     case 'Avatar':
-                        $arUpdateString[] = 'CUser.`Avatar` = "'.$this->Avatar.'"';
+                        $arCUserUpdateString['Avatar'] = $vValue;
                         break;
                     case 'Gender':
-                        $arUpdateString[] = 'CUser.`Gender` = "'.$this->Gender.'"';
+                        $arCUserUpdateString['Gender'] = $vValue;
                         break;
                     case 'Location':
-                        $arUpdateString[] = 'CUser.`Location` = "'.$this->Location.'"';
+                        $arCUserUpdateString['Location'] = $vValue;
                         break;
                     case 'DonatePoints':
-                        $arUpdateString[] = 'CUser.`DonatePoints` = "'.$this->DonatePoints.'"';
+                        $arCUserUpdateString['DonatePoints'] = $vValue;
                         break;
                     case 'VotePoints':
-                        $arUpdateString[] = 'CUser.`VotePoints` = "'.$this->VotePoints.'"';
+                        $arCUserUpdateString['VotePoints'] = $vValue;
                         break;
                     case 'Posts':
-                        $arUpdateString[] = 'CUser.`Posts` = "'.$this->Posts.'"';
+                        $arCUserUpdateString['Posts'] = $vValue;
                         break;
                     case 'Rank':
-                        $arUpdateString[] = 'CUser.`Rank` = "'.$this->Rank.'"';
+                        $arCUserUpdateString['Rank'] = $vValue;
                         break;
                     case 'Reputation':
-                        $arUpdateString[] = 'CUser.`Reputation` = "'.$this->Reputation.'"';
+                        $arCUserUpdateString['Reputation'] = $vValue;
                         break;
                     case 'SecurityAnswer':
-                        $arUpdateString[] = 'CUser.`SecurityAnswer` = "'.$this->SecurityAnswer.'"';
+                        $arCUserUpdateString['SecurityAnswer'] = $vValue;
                         break;
                     case 'SecurityQuestionID':
-                        $arUpdateString[] = 'CUser.`SecurityQuestionID` = "'.$this->SecurityQuestionID.'"';
+                        $arCUserUpdateString['SecurityQuestionID'] = $vValue;
                         break;
                     case 'Name':
-                        $arUpdateString[] = 'CUser.`Name` = "'.$this->Name.'"';
+                        $arCUserUpdateString['Name'] = $vValue;
+                        break;
+					case 'CUserID':
+                        $arCUserUpdateString['UserID'] = $vValue;
                         break;
                 }
             }
-
-            $sUpdateString = implode(', ', $arUpdateString);
-
-            CRecordset::Execute('
-                UPDATE
-	                `'.Application::$AuthDB.'`.`account` AS AUser
-                LEFT JOIN
-	                `'.Application::$CMSDB.'`.`User` AS CUser
-                ON
-	                CUser.UserID = AUser.id
-                SET '.$sUpdateString.' 
-                WHERE AUser.id = '.$nUserID);
-            
             #endregion
+			
+			if($bIsAdd) {
+				CRecordset::Execute('
+					INSERT INTO	`'.Application::$AuthDB.'`.`account`
+						(`'.implode('`, `', array_keys($arAUserUpdateString)).'`) 
+					VALUES 
+						("'.implode('", "', $arAUserUpdateString).'")');
+				
+				$nUserID = CRecordset::LastInsertedID();
+				$this->RecordID = $nUserID;
+				$this->SetPropertyValue('UserID', $nUserID);
+				$this->SetPropertyValue('CUserID', $nUserID);
+				
+				$arCUserUpdateString['UserID'] = $nUserID;
+				
+				CRecordset::Execute('
+					INSERT INTO	`'.Application::$CMSDB.'`.`User`
+						(`'.implode('`, `', array_keys($arCUserUpdateString)).'`) 
+					VALUES 
+						("'.implode('", "', $arCUserUpdateString).'")');
+			} else {
+				
+				$arUpdateString = array();
+				
+				foreach($arAUserUpdateString as $sPropertyName => $vValue) {
+					$arUpdateString[] = 'AUser.`'.$sPropertyName.'` = "'.$vValue.'"';
+				}
+				
+				foreach($arCUserUpdateString as $sPropertyName => $vValue) {
+					$arUpdateString[] = 'CUser.`'.$sPropertyName.'` = "'.$vValue.'"';
+				}
+				
+				$sUpdateString = implode(', ', $arUpdateString);
 
-            CCache::Save('AcUser_'.$nUserID, $this->DataSource, 60);
+				CRecordset::Execute('
+					UPDATE
+						`'.Application::$AuthDB.'`.`account` AS AUser
+					LEFT JOIN
+						`'.Application::$CMSDB.'`.`User` AS CUser
+					ON
+						CUser.UserID = AUser.id
+					SET '.$sUpdateString.' 
+					WHERE AUser.id = '.$nUserID);
+			}
+
+            CCache::Save('AcUser_'.$nUserID, $this->arData, 60);
         }
     }
     

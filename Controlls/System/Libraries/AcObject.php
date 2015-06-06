@@ -33,6 +33,7 @@ class AcObject extends AcControl {
                 $this->arData[$sPendingProperty] = $vPendingValue;
             }
         }
+		$this->arPendingData = array();
 
         if($bNeedUpdate && sizeof($arPropertiesNeedsUpdate) > 0) {
 			if($bIsAdd) {
@@ -83,7 +84,7 @@ class AcObject extends AcControl {
             return true;
         }
         
-		self::_Load($sObjectTableName.'.'.$sPrimaryKey.' = '.$nRecordID, null, null, null, $this);
+		self::_Load($sObjectTableName.'.'.$sPrimaryKey.' = '.$nRecordID, null, null, null, false, $this);
 		
 		if($bUseCache) {
             CCache::Save($this->ObjectName.'_'.$nRecordID, $this->arData, 60);
@@ -96,14 +97,17 @@ class AcObject extends AcControl {
         $this->Load();
     }
 	
-    protected static function _Load($sCriteria = null, $sOrderBy = null, $nPage = null, $nLimit = null, &$Instance = null) {
+    protected static function _Load($sCriteria = null, $sOrderBy = null, $nPage = null, $nLimit = null, $bIsCollectionTotalCount = false, &$Instance = null) {
 		$OD = self::LoadOD();
 		
         $sObjectTableName = $OD->ObjectTableName;
 		
 		$bIsNotCollection = !is_null($Instance);
-        
-		if($bIsNotCollection) {
+		
+		if($bIsCollectionTotalCount && !$bIsNotCollection) {
+			$nPage = null;
+			$nLimit = null;
+		} elseif($bIsNotCollection) {
 			$nPage = 1;
 			$nLimit = 1;
 		} else {
@@ -117,7 +121,7 @@ class AcObject extends AcControl {
         
         $sQuery = '
             SELECT
-	           *
+	           '.($bIsCollectionTotalCount ? 'COUNT(*) AS Count' : '*').'
             FROM
 	            '.$sObjectTableName.'
 	        '.(!empty($sCriteria) ? 'WHERE '.$sCriteria : '').'
@@ -127,6 +131,10 @@ class AcObject extends AcControl {
 		$arDataCollection = array();
 		
 		$rs = new CRecordset($sQuery);
+		if($bIsCollectionTotalCount && !$bIsNotCollection) {
+			return $rs->Count;
+		}
+		
 		while(!$rs->EOF) {
 			/**
 			 * @property AcObject $Object
@@ -146,6 +154,10 @@ class AcObject extends AcControl {
 		
 		return $arDataCollection;
     }
+	
+	public static function CollectionGetTotalCount($sCriteria = null) {
+		return self::_Load($sCriteria, null, null, null, true);
+	}
 	
 	public static function Collection($sCriteria = null, $sOrderBy = null, $nPage = null, $nLimit = null) {
 		return self::_Load($sCriteria, $sOrderBy, $nPage, $nLimit);
