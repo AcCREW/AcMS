@@ -146,8 +146,6 @@
         debug: false
     });
 
-    $urlRouterProvider.otherwise("/Index");
-
     $urlRouterProvider
       .otherwise('/Index');
 
@@ -155,11 +153,25 @@
         { name: 'Index', url: '/Index' },
         { name: 'How', url: '/How' },
         { name: 'Register', url: '/Register' },
+        { name: 'Profile', url: '/Profile' },
+        { name: 'Status', url: '/Status' },
         { name: 'Login', url: '/Login' }
     ];
 
     angular.forEach(states, function (state) {
         $stateProvider.state(state.name, state);
+    });
+
+    $stateProvider.state('Profile.RecordID', {
+        url: '/{RecordID:[0-9]{1,4}}',
+    });
+
+    $stateProvider.state('Status.RecordID', {
+        url: '/{RecordID:[0-9]{1,4}}',
+    });
+
+    $stateProvider.state('Status.Page', {
+        url: '/{RecordID:[0-9]{1,4}}/Page/{Page:[0-9]{1,4}}',
     });
 
     $stateProvider.state('Index.RecordID', {

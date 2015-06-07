@@ -136,7 +136,7 @@ input.cool[type="submit"]:active, input.cool[type="button"]:active {
 	-webkit-box-shadow: 0 0 2px 2px #d5d5d5;
 	box-shadow: 0 0 2px 2px #d5d5d5;
 }
-.menu li{
+.menu .item{
 	float: left;
 	text-align: center;
 	display: inline;
@@ -148,10 +148,10 @@ input.cool[type="submit"]:active, input.cool[type="button"]:active {
 	vertical-align: middle;
 	border-right: 1px solid #d5d5d5;
 }
-.menu li.last{
+.menu .item.last{
 	border-right: none;
 }
-.menu li.item:hover{
+.menu .item:hover{
 	-webkit-box-shadow:inset 0 0 35px #FFF;
 	box-shadow:inset 0 0 35px #FFF;
 	color: #000 !important;

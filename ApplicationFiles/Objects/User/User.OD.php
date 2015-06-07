@@ -24,7 +24,7 @@ class ODUser extends AcObjectDescriptor {
 			'Posts',
 			'Rank',
 			'Reputation',
-			'SecurityAnswe',
+			'SecurityAnswer',
 			'SecurityQuestionID',
 			'Name'
 		);

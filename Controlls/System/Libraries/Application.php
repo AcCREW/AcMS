@@ -115,6 +115,8 @@ class Application {
                 $arData['SiteTitle'] = Application::GetConfig('SITE_TITLE');
                 $arData['RightContent'] = '';
                 $arData['LeftContent'] = $sLeftContent;
+                $arData['IsLogged'] = Application::$IsLogged ? array(array()) : array();
+                $arData['IsNotLogged'] = Application::$IsLogged ? array() : array(array());
                 $arData['PreloadedJS'] = json_encode($this->PreloadedJSs);
                 $arData['PreloadedJSScheme'] = json_encode($this->PreloadedJSSchemes);
                 $arData['PreloadedCSS'] = $this->PreloadedCSSs;

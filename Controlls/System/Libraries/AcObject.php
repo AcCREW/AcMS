@@ -146,7 +146,7 @@ class AcObject extends AcControl {
 				$sObjectName = OBJECTS_PREFFIX.$OD->Name;
 				$Object =  new $sObjectName();
 				$Object->arData = $rs->RowData;
-				$arDataCollection[] = $Object;
+				$arDataCollection[$Object->{$OD->PrimaryKey}] = $Object;
 				unset($Object);
 			}
 			$rs->MoveNext();

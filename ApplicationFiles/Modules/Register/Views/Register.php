@@ -37,7 +37,7 @@
     <br />
     <span style="float: left; margin: 12px 0px 0px 0px;">Security question</span>
     <span style="float: right; text-align: right;" id="register_security_question">
-        <select data-ng-model="_this.SecurityQuestionID" style="width: 195px;">
+        <select data-ng-model="_this.SecurityQuestionID" style="width: 187px;">
             <option data-ng-repeat="SecurityQuestion in _this.SecurityQuestions" value="{{SecurityQuestion.SecurityQuestionID}}" data-ng-selected="{{SecurityQuestion.SecurityQuestionID == _this.SecurityQuestionID}}">{{SecurityQuestion.Name}}</option>
         </select>
     </span>

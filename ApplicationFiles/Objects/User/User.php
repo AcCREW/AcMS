@@ -18,7 +18,7 @@
  * @property int $Rank Rank
  * @property int $Reputation Reputation
  * @property string $SecurityAnswer Security Answer
- * @property string $SecurityQuestion Security Question
+ * @property int $SecurityQuestionID Security Question
  * @property string $Name Name
  * @property int $GMLevel In-game GMLevel
  * @property array $Characters Array of Characters information
@@ -136,8 +136,9 @@ class OUser extends AcObject {
 						(`'.implode('`, `', array_keys($arCUserUpdateString)).'`) 
 					VALUES 
 						("'.implode('", "', $arCUserUpdateString).'")');
-			} else {
 				
+				$this->Reload();
+			} else {
 				$arUpdateString = array();
 				
 				foreach($arAUserUpdateString as $sPropertyName => $vValue) {
@@ -159,10 +160,12 @@ class OUser extends AcObject {
 						CUser.UserID = AUser.id
 					SET '.$sUpdateString.' 
 					WHERE AUser.id = '.$nUserID);
+				
+				CCache::Save('AcUser_'.$nUserID, $this->arData, 60);
 			}
-
-            CCache::Save('AcUser_'.$nUserID, $this->arData, 60);
         }
+		
+		return $nUserID;
     }
     
     public function GenerateCUserData() {
@@ -286,4 +289,62 @@ class OUser extends AcObject {
 
         return true;
     }
+	
+	public static function Login($sUsername, $sPassword) {
+		$sHASH = self::GenerateSHAPassHash($sUsername, $sPassword);
+		
+		$rs = new CRecordset('
+			SELECT 
+				`'.Application::$AuthDB.'`.`account`.`id` AS UserID 
+			FROM 
+				`'.Application::$AuthDB.'`.`account` 
+			WHERE 
+				`'.Application::$AuthDB.'`.`account`.`username` = "'.$sUsername.'" 
+				AND  `'.Application::$AuthDB.'`.`account`.`sha_pass_hash` = "'.$sHASH.'"
+			LIMIT 0, 1');
+		
+		$nUserID = $rs->UserID;
+		
+		if(empty($nUserID)) {
+			return new Error('Invalid Username/Password.');
+		}
+		
+		return $rs->UserID;
+	}
+	
+	public static function Register($sUsername, $sPassword, $sEMail, $sSecurityQuestionID, $sSecurityAnswer) {
+		$rs = new CRecordset('
+			SELECT 
+				`'.Application::$AuthDB.'`.`account`.`username` AS Username 
+				, `'.Application::$AuthDB.'`.`account`.`email` AS EMail 
+			FROM 
+				`'.Application::$AuthDB.'`.`account` 
+			WHERE 
+				`'.Application::$AuthDB.'`.`account`.`username` = "'.$sUsername.'" 
+				OR  `'.Application::$AuthDB.'`.`account`.`email` = "'.$sEMail.'"
+			LIMIT 0, 1');
+		
+		if($rs->NumRows() > 0) {
+			if($rs->Username == $sUsername) {
+				return new Error('Username "'.$sUsername.'" already exists.');
+			}
+			if($rs->EMail == $sEMail) {
+				return new Error('Email "'.$sEMail.'" is already in use.');
+			}
+		}
+		
+		$User = new OUser();
+		$User->Username = $sUsername;
+		$User->Name = $sUsername;
+		$User->SHAPassHash = self::GenerateSHAPassHash($sUsername, $sPassword);
+		$User->Email = $sEMail;
+		$User->SecurityAnswer = $sSecurityAnswer;
+		$User->SecurityQuestionID = $sSecurityQuestionID;
+
+		return $User->Update();
+	}
+	
+	public static function GenerateSHAPassHash($sUsername, $sPassword) {
+		return sha1(strtolower($sUsername).':'.strtolower($sPassword));
+	}
 }

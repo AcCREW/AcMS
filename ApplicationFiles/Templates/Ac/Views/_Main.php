@@ -35,9 +35,15 @@
     <div class="wrapper" id="wrapper">
         <div class="container">
             <div class="menu">
-                <li class="item"><a href="#/">Home</a></li>
-                <li class="item"><a href="#/Register">Register</a></li>
-                <li class="item"><a href="#/How">Connection Guide </a></li>
+                <a href="#/"><div class="item">Home</div></a>
+				{IsLogged}
+					<a href="#/Profile"><div class="item">Profile</div></a>
+				{/IsLogged}
+                {IsNotLogged}
+					<a href="#/Register"><div class="item">Register</div></a>
+				{/IsNotLogged}
+				<a href="#/Status"><div class="item">Status</div></a>
+                <a href="#/How"><div class="item">Connection Guide</div></a>
             </div>
             <div class="logo">
                 <span>{SiteTitle}</span>

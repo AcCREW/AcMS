@@ -4,7 +4,7 @@
  * 
  * @property string $Username
  * @property string $Password
- * @property CUser $User
+ * @property OUser $User
  */
 class Membership extends Form implements iFormAction {
 	public $Username = null;
@@ -35,35 +35,21 @@ class Membership extends Form implements iFormAction {
 			return;
 		}
         
-		$sSha = sha1(strtolower($sUsername).':'.strtolower($sPassword));
-        
-		$rs = new CRecordset('
-		        SELECT 
-		            `'.Application::$AuthDB.'`.`account`.`id` AS UserID 
-		        FROM 
-		            `'.Application::$AuthDB.'`.`account` 
-		        WHERE 
-		            `'.Application::$AuthDB.'`.`account`.`username` = "'.$sUsername.'" 
-		            AND  `'.Application::$AuthDB.'`.`account`.`sha_pass_hash` = "'.$sSha.'"
-		        LIMIT 0, 1');
-        
-        
-		$nUserID = $rs->UserID;
-		if(!empty($nUserID)) {
-			$bIsSessExpireOnCloseChanged = false;
-			if($this->RememberMe && CSession::$SESS_EXPIRE_ON_CLOSE === true) {
-				$bIsSessExpireOnCloseChanged = true;
-				CSession::$SESS_EXPIRE_ON_CLOSE = false;
-			}
-			CSession::Set('IsLogged', true);
-			CSession::Set('UserID', $nUserID);
-			$this->Location = ACPATH;
-			if($bIsSessExpireOnCloseChanged) {
-				CSession::$SESS_EXPIRE_ON_CLOSE = true;
-			}
-		} else {
-			CSession::Set('IsLogged', false);
-			$this->LoginAlert = new Alert("Invalid Username/Password.");
+		if(($nUserID = OUser::Login($sUsername, $sPassword)) instanceof Error) {
+			$this->LoginAlert = new Alert($nUserID->Message, Alert::ALERT_TYPE_ERROR);
+			return;
+		}
+		
+		$bIsSessExpireOnCloseChanged = false;
+		if($this->RememberMe && CSession::$SESS_EXPIRE_ON_CLOSE === true) {
+			$bIsSessExpireOnCloseChanged = true;
+			CSession::$SESS_EXPIRE_ON_CLOSE = false;
+		}
+		CSession::Set('IsLogged', true);
+		CSession::Set('UserID', $nUserID);
+		$this->Location = ACPATH;
+		if($bIsSessExpireOnCloseChanged) {
+			CSession::$SESS_EXPIRE_ON_CLOSE = true;
 		}
 	}
 
