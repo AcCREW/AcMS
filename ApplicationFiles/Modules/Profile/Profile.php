@@ -1,11 +1,11 @@
 <?php
 
-class Profile {
+class Profile extends Form {
     public function Render() {
-        $ar = array(
-            'SiteTitle' => Application::GetConfig('SITE_TITLE'),
-            'Realmlist' => Application::GetConfig('REALMLIST')
-            );
-        return CParser::Parse('How', 'How', $ar);
+		if(!Application::$IsLogged) {
+			$this->Location = ACPATH;
+			return null;
+		}
+        return CParser::Parse('Profile', 'Profile', Application::$User->arData);
     }
 }

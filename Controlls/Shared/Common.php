@@ -3,6 +3,7 @@
 class Error {
     public $Message = null;
     public $Code = null;
+    public $__Type = 'Error';
     
     public function Error($sMessage, $sCode = null) {
         $this->Message = $sMessage;

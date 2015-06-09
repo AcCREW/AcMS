@@ -27,6 +27,10 @@ class Index {
             return $arData['Content'];
         }
 		
+		$nRecordID = CRecordset::EscapeString($nRecordID);
+		$nStartRecord = CRecordset::EscapeString($nStartRecord);
+		$nLimit = CRecordset::EscapeString($nLimit);
+		
         $rs = new CRecordset('
             SELECT
 	            `'.Application::$CMSDB.'`.`Topic`.`TopicID` AS TopicID,

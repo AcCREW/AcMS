@@ -23,7 +23,7 @@ class CDBConnection{
         
         self::$Host = Application::GetConfig('MYSQL_HOST');
         self::$Username = Application::GetConfig('MYSQL_USER');
-        self::$Password = Application::GetConfig('MYSQL_PASSOWRD');
+        self::$Password = Application::GetConfig('MYSQL_PASSWORD');
         self::$DB = Application::GetConfig('MYSQL_DEFAULT_DB');
         $sPort = Application::GetConfig('MYSQL_PORT');
         
@@ -37,7 +37,7 @@ class CDBConnection{
         if(mysqli_connect_errno()){
             show_error("Connect failed: %s\n", mysqli_connect_error());
             exit;
-        }else{
+        } else {
             $sQuery = 'set names utf8;';
             mysqli_query(self::$_instance, $sQuery);
             $sQuery = 'set group_concat_max_len=1073741824;';
@@ -47,8 +47,8 @@ class CDBConnection{
 	
 	private static function Connect($nAttempt = 1){
 		self::$_instance = new mysqli(self::$Host, self::$Username, self::$Password, self::$DB, self::$Port, self::$DbSocket);
-		if(self::$_instance->connect_error && $nAttempt < 30){
-			sleep(2);
+		if(self::$_instance->connect_error && $nAttempt < 10){
+			sleep(1);
 			self::Connect($nAttempt + 1);
 		} elseif(self::$_instance->connect_error) {
             show_error('Connection to DB failed.('.self::$_instance->connect_error.')');

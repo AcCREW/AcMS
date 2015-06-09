@@ -55,6 +55,7 @@ class OUser extends AcObject {
 
             #region Construct Update Query
             foreach($arPropertiesNeedsUpdate as $sPropertyName => $vValue) {
+				CRecordset::EscapeString($vValue);
                 switch($sPropertyName) {
                     case 'Email':
                         $arAUserUpdateString['email'] = $vValue;
@@ -172,6 +173,8 @@ class OUser extends AcObject {
         $nUserID = $this->RecordID;
 		$sNickname = $this->Username;
 		$this->arData['Name'] = $sNickname;
+		$nUserID = CRecordset::EscapeString($nUserID);
+		$sNickname = CRecordset::EscapeString($sNickname);
         CRecordset::Execute("INSERT INTO `".Application::$CMSDB."`.`User` (`UserID`, `Name`) VALUES ('".$nUserID."', '".$sNickname."')");
     }
 	
@@ -203,6 +206,7 @@ class OUser extends AcObject {
 		            ) AS CharactersTmp)";
 		}
 
+		$nUserID = CRecordset::EscapeString($nUserID);
         $sQuery = '
             SELECT
 	            AUser.`id` as UserID,
@@ -299,7 +303,7 @@ class OUser extends AcObject {
 			FROM 
 				`'.Application::$AuthDB.'`.`account` 
 			WHERE 
-				`'.Application::$AuthDB.'`.`account`.`username` = "'.$sUsername.'" 
+				`'.Application::$AuthDB.'`.`account`.`username` = "'.CRecordset::EscapeString($sUsername).'" 
 				AND  `'.Application::$AuthDB.'`.`account`.`sha_pass_hash` = "'.$sHASH.'"
 			LIMIT 0, 1');
 		
@@ -320,8 +324,8 @@ class OUser extends AcObject {
 			FROM 
 				`'.Application::$AuthDB.'`.`account` 
 			WHERE 
-				`'.Application::$AuthDB.'`.`account`.`username` = "'.$sUsername.'" 
-				OR  `'.Application::$AuthDB.'`.`account`.`email` = "'.$sEMail.'"
+				`'.Application::$AuthDB.'`.`account`.`username` = "'.CRecordset::EscapeString($sUsername).'" 
+				OR  `'.Application::$AuthDB.'`.`account`.`email` = "'.CRecordset::EscapeString($sEMail).'"
 			LIMIT 0, 1');
 		
 		if($rs->NumRows() > 0) {

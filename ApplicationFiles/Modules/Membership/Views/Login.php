@@ -7,12 +7,12 @@
         </tr>
         <tr>
             <td>
-                <input type="text" autocomplete="off" name="login_username" id="login_username" placeholder="Account..." data-ng-model="_this.Username" />
+                <input type="text" autocomplete="off" name="login_username" id="login_username" placeholder="Account..." data-ng-model="_this.Username" data-ng-required="true" />
             </td>
         </tr>
         <tr>
             <td>
-                <input type="password" autocomplete="off" name="login_password" id="login_password" placeholder="Password..." data-ng-model="_this.Password" />
+                <input type="password" autocomplete="off" name="login_password" id="login_password" placeholder="Password..." data-ng-model="_this.Password" data-ng-required="true" />
             </td>
         </tr>
         <tr>

@@ -20,8 +20,8 @@
 
     _UserService.UpdateJS = function (vData) {
         angular.forEach(vData, function (vValue, sKey) {
-            if (vValue == 'true') {
-                vValue = true;
+            if (vValue == 'true' || vValue == 'false') {
+                vValue = vValue === 'true';
             }
             eval('_UserService.' + sKey + ' = vValue;');
         });
@@ -54,15 +54,9 @@
     }
 
     this.Submit = function (sModule, vData) {
-        var JSONData = {
-            "Module": sModule,
-            "Action": 1001
-        };
-        angular.forEach(JSONData, function (vValue, sKey) {
-            vData[sKey] = vValue;
-        });
+        vData.Module = sModule;
+        vData.Action = 1001;
         var request = this.PostRequest(BaseURL + 'index.php', vData);
-
 
         request.then(function (_Data) {
             if (_Data.Location !== undefined) {
@@ -112,21 +106,37 @@
             }
         }
     };
-}).directive('ngSetOption', function ($parse) {
+}).directive('ngRequired', function ($parse) {
     return {
+        require: ['?ngModel', '?ngRequired'],
         link: function (scope, element, attrs) {
-            console.dir(scope);
-            console.dir(element);
-            console.dir(attrs);
-            //if (attrs.ngSetOption && attrs.$$element.context.innerHTML) {
-            //    $parse(attrs.ngBind).assign(scope, attrs.$$element.context.innerHTML);
-            //}
+            if (scope.RequiredElements === undefined) {
+                scope.RequiredElements = Array();
+            }
+            scope.RequiredElements.push(element);
         }
     };
 }).directive('ngEnter', function ($parse, AcHTTP, userService) {
     return function (scope, element, attrs) {
         element.bind("keypress", function (event) {
             if (event.which === 13) {
+                if (scope.RequiredElements !== undefined) {
+                    var bFocused = false;
+                    for (var i = 0; i < scope.RequiredElements.length; i++) {
+                        eval("var vValue = scope." + scope.RequiredElements[i].context.attributes.getNamedItem('data-ng-model').value + ";");
+                        if (!vValue) {
+                            if (!bFocused) {
+                                scope.RequiredElements[i].focus();
+                                bFocused = true;
+                            }
+                            scope.RequiredElements[i].removeClass('ng-untouched');
+                            scope.RequiredElements[i].addClass('ng-touched');
+                        }
+                    }
+                    if (bFocused) {
+                        return;
+                    }
+                }
                 eval("AcHTTP.Submit('" + attrs.ngEnter + "', userService." + attrs.ngEnter + ");");
             }
         });
@@ -134,7 +144,24 @@
 }).directive('ngSubmit', function ($parse, AcHTTP, userService) {
     return {
         link: function (scope, element, attrs) {
-            element.on("click", function () {
+            element.on("click", function (event) {
+                if (scope.RequiredElements !== undefined) {
+                    var bFocused = false;
+                    for (var i = 0; i < scope.RequiredElements.length; i++) {
+                        eval("var vValue = scope." + scope.RequiredElements[i].context.attributes.getNamedItem('data-ng-model').value + ";");
+                        if (!vValue) {
+                            if(!bFocused) {
+                                scope.RequiredElements[i].focus();
+                                bFocused = true;
+                            }
+                            scope.RequiredElements[i].addClass('ng-touched');
+                            scope.RequiredElements[i].removeClass('ng-untouched');
+                        }
+                    }
+                    if (bFocused) {
+                        return;
+                    }
+                }
                 eval("AcHTTP.Submit('" + attrs.ngSubmit + "', userService." + attrs.ngSubmit + ");");
             });
         }
@@ -150,37 +177,15 @@
       .otherwise('/Index');
 
     var states = [
-        { name: 'Index', url: '/Index' },
-        { name: 'How', url: '/How' },
-        { name: 'Register', url: '/Register' },
-        { name: 'Profile', url: '/Profile' },
-        { name: 'Status', url: '/Status' },
-        { name: 'Login', url: '/Login' }
+        { name: 'State', url: '/{State:[a-zA-Z]{1,10000}}' },
+        { name: 'State.RecordID', url: '/{RecordID:[0-9]{1,9}}' },
+        { name: 'State.RecordIDPage', url: '/{RecordID:[0-9]{1,9}}/Page/{Page:[0-9]{1,9}}' },
+        { name: 'State.Page', url: '/Page/{Page:[0-9]{1,9}}' }
     ];
 
-    angular.forEach(states, function (state) {
-        $stateProvider.state(state.name, state);
-    });
-
-    $stateProvider.state('Profile.RecordID', {
-        url: '/{RecordID:[0-9]{1,4}}',
-    });
-
-    $stateProvider.state('Status.RecordID', {
-        url: '/{RecordID:[0-9]{1,4}}',
-    });
-
-    $stateProvider.state('Status.Page', {
-        url: '/{RecordID:[0-9]{1,4}}/Page/{Page:[0-9]{1,4}}',
-    });
-
-    $stateProvider.state('Index.RecordID', {
-        url: '/{RecordID:[0-9]{1,4}}',
-    });
-
-    $stateProvider.state('Index.Page', {
-        url: '/Page/{Page:[0-9]{1,4}}',
-    });
+    for (var i = 0; i < states.length; i++) {
+        $stateProvider.state(states[i].name, states[i]);
+    }
 }]).controller('AcController', function ($scope, $ocLazyLoad, ngProgress, AcHTTP, $state, userService, $window) {
     $scope.arHTMLCache = Array();
     $scope.CurrentModule = $state.current.name; // defualt Index
@@ -200,8 +205,8 @@
                 $scope.CurrentPage = 1;
             }
         }
-        $scope.CurrentModule = toState.name;
-        if (toState.name == fromState.name && toParams != fromParams) {
+        $scope.CurrentModule = toParams.State;
+        if (toParams.State == fromParams.State && toParams != fromParams) {
             $scope._Load($scope.CurrentModule);
         }
     });
@@ -240,15 +245,16 @@
         sModuleName = CurrentStateURI[0];
         ngProgress.reset().start();
         AcHTTP.Request(BaseURL + 'index.php', { "Module": sModuleName, "RecordID": CurrentRecordID, "Page": CurrentPage, "Action": 1000 }).then(function (_Data) {
+            if (_Data.__Type == 'Error') {
+                $scope.RightContent = _Data.Message;
+                ngProgress.complete();
+                return;
+            }
             if (_Data.Location !== undefined) {
                 $window.location.href = _Data.Location;
+                return;
             }
-            if (_Data.RequireAngularJS == false) {
-                $scope.RightContent = _Data.Content;
-                $scope.arHTMLCache[sModule] = _Data;
-                document.title = _Data.SiteTitle + ' - ' + _Data.ModuleTitle;
-                ngProgress.complete();
-            } else {
+            if (_Data.RequireAngularJS === true) {
                 $ocLazyLoad.load({
                     name: sModuleName,
                     files: ['../ApplicationFiles/Modules/' + sModuleName + '/js/' + sModuleName]
@@ -265,6 +271,11 @@
                     console.log(e);
                     ngProgress.complete();
                 });
+            } else {
+                $scope.RightContent = _Data.Content;
+                $scope.arHTMLCache[sModule] = _Data;
+                document.title = _Data.SiteTitle + ' - ' + _Data.ModuleTitle;
+                ngProgress.complete();
             }
         }, function (Error) {
             ngProgress.complete();

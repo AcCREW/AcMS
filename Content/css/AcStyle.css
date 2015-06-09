@@ -40,6 +40,14 @@ label {
     user-select: none;
 }
 
+.black {
+    color: #000000;
+}
+
+.border-left-black {
+    border-left: 1px solid #000000;
+}
+
 .alert {
     color: #c82820;
     background-color: #e7928d;
@@ -71,4 +79,17 @@ label {
         border: 1px solid #fffecc;
     }
 
- 
+.ng-invalid.ng-touched {
+    border: 1px solid #e7928d;
+}
+
+*:focus {
+    outline: 0;
+}
+
+.RequiredMark {
+    margin-top: 5px;
+    padding: 6px 0px;
+    border-right: 2px solid red;
+    float: right;
+}

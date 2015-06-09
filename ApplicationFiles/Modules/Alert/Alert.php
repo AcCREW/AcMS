@@ -6,7 +6,7 @@ class Alert {
 	const ALERT_TYPE_SUCCESS = 'AlertSuccess';
 	const ALERT_TYPE_INFORMATION = 'AlertInformation';
 	
-	public $_Type = 'Alert';
+	public $__Type = 'Alert';
 	public $AlertType = null;
 	public $_Content = null;
 	public $Content = null;

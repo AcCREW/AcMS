@@ -4,6 +4,7 @@
     "CSS": [
         "css/AcStyle.css",
         "css/font-awesome.min.css",
+		"css/bootstrap/bootstrap.min.css",
         "css/nprogress.css"
     ],
     "JS": {

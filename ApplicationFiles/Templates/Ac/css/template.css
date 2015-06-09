@@ -46,13 +46,16 @@ textarea {
 input, textarea, select {
 	background-color:#d5d5d5;
 	border: 1px solid #BBBBBB;
-	padding: 5px;
+	padding: 3px 5px;
 	font-weight: bold;
 	color: #5f5f5f;
 	margin: 5px 0px 5px 0px;
+    width: 100%;
+}
+select {
+    padding: 4.373px 5px;
 }
 input[type="text"], input[type="password"] {
-	min-width:170px;
 }
 input[type="submit"], input[type="button"] {
 	cursor:pointer;
@@ -81,17 +84,7 @@ input.cool[type="submit"]:active, input.cool[type="button"]:active {
 	display: none;
 }
 .label{
-	margin-top: 12px;
-}
-.right{
-	float: right;
-}
-.left{
-	float: left;
-}
-.clear{
-	clear: both; 
-	display: block;
+	margin-top: 11px;
 }
 .wrapper{
 	min-height: 100%;
@@ -114,7 +107,7 @@ input.cool[type="submit"]:active, input.cool[type="button"]:active {
 }
 .footer {
 	color: #636363;
-	width: 961px;
+	width: 931px;
 	height:25px;
 	margin-top:15px;
 	position:absolute;
@@ -142,7 +135,6 @@ input.cool[type="submit"]:active, input.cool[type="button"]:active {
 	display: inline;
 	min-width: 10px;
 	padding: 10px 15px 10px 15px;
-	height: 20px;
 	font-size: 18px;
 	font-weight: bold;
 	vertical-align: middle;
@@ -203,7 +195,7 @@ input.cool[type="submit"]:active, input.cool[type="button"]:active {
 .body .right_body {
 	float: right;
 	margin: 10px 10px 10px 0px;
-	width: 320px;
+	width: 310px;
 	min-height: 350px;
 }
 .body .right_body .box_title{

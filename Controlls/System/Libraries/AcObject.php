@@ -29,7 +29,7 @@ class AcObject extends AcControl {
 			}
             if(!isset($this->arData[$sPendingProperty]) || $this->arData[$sPendingProperty] != $vPendingValue) {
                 $bNeedUpdate = true;
-                $arPropertiesNeedsUpdate[$sPendingProperty] = $vPendingValue;
+                $arPropertiesNeedsUpdate[$sPendingProperty] = CRecordset::EscapeString($vPendingValue);
                 $this->arData[$sPendingProperty] = $vPendingValue;
             }
         }

@@ -7,9 +7,9 @@ angular.module('Status', [])
 	    $scope._this = userService.Status;
 
 	    $scope.$watch('_this.RealmlistID', function (sNewModule, sOldModule) {
-            if(sNewModule !== null && sNewModule !== undefined) {
-                $state.go('Status.RecordID', { RecordID: sNewModule });
-                $scope._this.RealmlistID = null;
-            }
+	        if (sNewModule !== null && sNewModule !== undefined) {
+	            $state.go('State.RecordID', { State: 'Status', RecordID: sNewModule });
+	            $scope._this.RealmlistID = null;
+	        }
 	    });
 	});

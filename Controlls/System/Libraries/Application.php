@@ -125,17 +125,18 @@ class Application {
                 #endregion
                 break;
             case self::_ACTION_LOAD_MODULE:
+                header('Content-Type: application/json');
                 #region - Load Module - 
 				$sModule = CInput::Get('Module');
 				$sModule = $sModule !== false && !empty($sModule) ? $sModule : DEFAULT_CONTROLLER;
 				$sFunction =  CInput::Get('Function');
 				$sFunction = $sFunction !== false && !empty($sFunction) ? $sFunction : DEFAULT_FUNCTION;
                 if(($Error = Loader::LoadModule($sModule)) instanceof Error) {
-                    show_error($Error->Message);
+                    exit(json_encode($Error));
                 }
                 $Module = new $sModule();
                 if(!method_exists($Module, $sFunction)) {
-                    show_error("Function '".$sFunction."' doesn't exists in class '".$sModule."'.");
+                    exit(json_encode(new Error("Function '".$sFunction."' doesn't exists in class '".$sModule."'.")));
                 }
                 $JSONObject = Loader::LoadJSON($sModule, MODULES);
                 $sContent = call_user_func_array(array(&$Module, $sFunction), array());
@@ -166,7 +167,6 @@ class Application {
 				//Dump(CCheck::CompareTimes(APP_START));
 				//Dump(CCheck::CompareMemories());
                 $arData['Content'] = self::$DumpContent.$sContent;
-                header('Content-Type: application/json');
                 exit (json_encode($arData));
             #endregion
         }
