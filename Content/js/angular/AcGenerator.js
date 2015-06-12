@@ -41,12 +41,12 @@
     }
 
     this.PostRequest = function (sURL, vData) {
-        eval("var Obj = { " + CSRFTokenName + " : '" + CSRFTokenValue + "' }");
+        eval("vData." + CSRFTokenName + " = '" + CSRFTokenValue + "';");
 
         var request = $http({
             method: 'POST',
             url: sURL,
-            data: $.param($.extend({}, Obj, vData)),
+            data: vData,
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
 
